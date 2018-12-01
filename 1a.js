@@ -10,7 +10,6 @@ class Solution {
     }
 
     applyAdjustments(input) {
-        console.log(input);
         const arr = _(input)
             .chain()
             .split('\n')    // split by line break
