@@ -3,10 +3,7 @@ const fs = require('fs'),
 
 class Solution {
     run() {
-        // const input = fs.readFileSync('./3.dat', 'utf8');
-        const input = `#1 @ 1,3: 4x4
-        #2 @ 3,1: 4x4
-        #3 @ 5,5: 2x2`;
+        const input = fs.readFileSync('./3.dat', 'utf8');
 
         const result = this.solve(input);
         console.log('Result:', result);
@@ -29,7 +26,12 @@ class Solution {
             }
         });
 
-        return counts.two * counts.three;
+        return _(grid)
+                .chain()
+                .flatten()
+                .countBy(x => x > 1)
+                .value()
+                .true;
     }
 
     parseInput(input) {
