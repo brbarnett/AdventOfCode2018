@@ -16,15 +16,18 @@ class Solution {
         const claims = this.parseInput(input);
         const size = this.getFabricBounds(claims);
 
-        let grid = _.fill(Array(size), _.fill(Array(size), 0));
+        let grid = new Array(size);
+        for (let i = 0; i < grid.length; i++) {
+            grid[i] = _.fill(Array(size), 0);
+        }
 
-        for (let claim in claims) {
+        _.forEach(claims, claim => {
             for (let x = claim.left; x < claim.left + claim.width; x++) {
                 for (let y = claim.top; y < claim.top + claim.height; y++) {
-                    grid[y, x] += 1;    // increment every square inch for every claim
+                    grid[y][x] += 1;    // increment every square inch for every claim
                 }
             }
-        }
+        });
 
         return counts.two * counts.three;
     }
@@ -59,7 +62,7 @@ class Solution {
         const maxWidth = maxWidthClaim.left + maxWidthClaim.width;
         const maxHeight = maxHeightClaim.top + maxHeightClaim.height
 
-        const size = Math.max(maxWidth, maxHeight) - 1;
+        const size = Math.max(maxWidth, maxHeight);
 
         return size;
     }
