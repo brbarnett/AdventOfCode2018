@@ -4,45 +4,43 @@ const fs = require('fs'),
 class Solution {
     constructor() {
         this.recordExpression = /\[1518-(\d+)-(\d+) (\d+):(\d+)\] (.+)/;
+        this.guard = null;
     }
 
     run() {
-        // const input = fs.readFileSync('./3.dat', 'utf8');
-        const input = `[1518-11-01 00:00] Guard #10 begins shift
-        [1518-11-01 00:05] falls asleep
-        [1518-11-01 00:25] wakes up
-        [1518-11-01 00:30] falls asleep
-        [1518-11-01 00:55] wakes up
-        [1518-11-01 23:58] Guard #99 begins shift
-        [1518-11-02 00:40] falls asleep
-        [1518-11-02 00:50] wakes up
-        [1518-11-03 00:05] Guard #10 begins shift
-        [1518-11-03 00:24] falls asleep
-        [1518-11-03 00:29] wakes up
-        [1518-11-04 00:02] Guard #99 begins shift
-        [1518-11-04 00:36] falls asleep
-        [1518-11-04 00:46] wakes up
-        [1518-11-05 00:03] Guard #99 begins shift
-        [1518-11-05 00:45] falls asleep
-        [1518-11-05 00:55] wakes up`;
+        const input = fs.readFileSync('./4.dat', 'utf8');
 
         const result = this.solve(input);
         console.log('Result:', result);
     }
 
     solve(input) {
-        const arr = _(input)
+        const guards = _(input)
             .chain()
             .split('\n')    // split by line break
             .map(x => this.parseRecord(x)) // parse into useful information
             .orderBy(x => x.chron)  // order chronologically
             .groupBy(x => x.mmdd)   // group by day
-            .map(x => this.createDay(x))
+            .map(x => this.createDay(x))    // parse out midnight hour
+            .groupBy(x => x.guard)
             .value();
 
+        const mostAsleepGuard = _.maxBy(_.map(guards, x => x), x => {
+            return _.sumBy(x, y => y.asleepTime);
+        });
 
+        const mostAsleepGuardDays = mostAsleepGuard.map(x => x.day);
 
+        let minutes = [];
+        let max = 0;
+        for(let min = 0; min < 60; min++){
+            let times = _.sumBy(mostAsleepGuardDays, x => x[min]);
+            minutes.push(times);
 
+            if(times > max) max = times;
+        }
+
+        return _.findIndex(minutes, x => x === max) * mostAsleepGuard[0].guard;
     }
 
     parseRecord(record) {
@@ -61,25 +59,31 @@ class Solution {
     }
 
     createDay(records) {
-        let guard = null;
         let day = [];
         let asleep = false;
+        let mmdd = null;
+        let localGuard = this.guard;
 
         // loop through every minute, set state
-        for(let min = 0; min < 60; min++) {
+        for (let min = 0; min < 60; min++) {
             const record = _.find(records, x => x.minute === min);
-            
+
             // change state
-            if(record) {
-                // set guard
+            if (record) {
+                if (mmdd === null) mmdd = record.mmdd;
+
+                // change guard
                 const guardIndex = record.log.indexOf('#');
-                if(guardIndex >= 0) guard = record.log.split('#')[1].split(' ')[0];
+                if (guardIndex >= 0) {
+                    this.guard = record.log.split('#')[1].split(' ')[0];
+                    if (record.hour === 0) localGuard = this.guard;
+                }
 
                 // set awake
-                if(record.log.indexOf('wakes up') >= 0) asleep = false;
+                if (record.log.indexOf('wakes up') >= 0) asleep = false;
 
                 // set asleep
-                if(record.log.indexOf('falls asleep') >= 0) asleep = true;
+                if (record.log.indexOf('falls asleep') >= 0) asleep = true;
             }
 
             // log to day
@@ -87,8 +91,10 @@ class Solution {
         }
 
         return {
-            guard: guard,
-            day: day
+            mmdd: mmdd,
+            guard: localGuard,
+            day: day,
+            asleepTime: _.countBy(day).true
         };
     }
 }
