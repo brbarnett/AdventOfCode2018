@@ -36,7 +36,13 @@ class Solution {
             .split('\n')    // split by line break
             .map(x => this.parseRecord(x)) // parse into useful information
             .orderBy(x => x.chron)  // order chronologically
+            .groupBy(x => x.mmdd)   // group by day
+            .map(x => this.createDay(x))
             .value();
+
+
+
+
     }
 
     parseRecord(record) {
@@ -49,7 +55,40 @@ class Solution {
             hour: +parsed[3],
             minute: +parsed[4],
             log: parsed[5],
-            chron: parsed[1] + parsed[2] + parsed[3] + parsed[4]    // mmddhhmmm for ordering
+            chron: parsed[1] + parsed[2] + parsed[3] + parsed[4],    // mmddhhmmm for ordering
+            mmdd: parsed[1] + parsed[2]
+        };
+    }
+
+    createDay(records) {
+        let guard = null;
+        let day = [];
+        let asleep = false;
+
+        // loop through every minute, set state
+        for(let min = 0; min < 60; min++) {
+            const record = _.find(records, x => x.minute === min);
+            
+            // change state
+            if(record) {
+                // set guard
+                const guardIndex = record.log.indexOf('#');
+                if(guardIndex >= 0) guard = record.log.split('#')[1].split(' ')[0];
+
+                // set awake
+                if(record.log.indexOf('wakes up') >= 0) asleep = false;
+
+                // set asleep
+                if(record.log.indexOf('falls asleep') >= 0) asleep = true;
+            }
+
+            // log to day
+            day.push(asleep);
+        }
+
+        return {
+            guard: guard,
+            day: day
         };
     }
 }
