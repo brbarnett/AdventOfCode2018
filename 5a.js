@@ -10,12 +10,18 @@ class Solution {
     }
 
     solve(input) {
+        const reduced = this.reducePolymer(input);
+
+        return reduced.length;
+    }
+
+    reducePolymer(polymer) {
         let found = null;
         do {
             found = false;
-            for (let i = 0; i < input.length - 1; i++) {
-                if (Math.abs(input.charCodeAt(i) - input.charCodeAt(i + 1)) === 32) {
-                    input = input.replace(input.substring(i, i + 2), '');
+            for (let i = 0; i < polymer.length - 1; i++) {
+                if (Math.abs(polymer.charCodeAt(i) - polymer.charCodeAt(i + 1)) === 32) {
+                    polymer = polymer.replace(polymer.substring(i, i + 2), '');
                     found = true;
                     break;
                 }
@@ -23,7 +29,7 @@ class Solution {
         }
         while (found);
 
-        return input.length;
+        return polymer;
     }
 }
 
