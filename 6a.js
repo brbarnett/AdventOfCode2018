@@ -30,12 +30,13 @@ class Solution {
 
         const boundingBox = this.getBoundingBox(coords);
 
-        let rows = new Array(boundingBox.y);
+        let rows = new Array(boundingBox.y + 1);
         for (let i = 0; i < boundingBox.y; i++) {
-            rows[i] = _.fill(Array(boundingBox.x), null);
+            rows[i] = _.fill(Array(boundingBox.x + 1), null);
         }
 
-        for (let x = 0; x < boundingBox.x; x++) {
+        let infinite = new Set();
+        for (let x = 0; x < boundingBox.x + 1; x++) {
             for (let y = 0; y < boundingBox.y; y++) {
                 const distances = _(coords)
                     .chain()
@@ -50,8 +51,16 @@ class Solution {
 
                 const points = _.filter(distances, _ => _.distance === minDistance);
 
-                if (points.length === 1)
+                if (points.length === 1) {
                     rows[y][x] = points[0].point.id;
+
+                    if (x === 0
+                        || y === 0
+                        || x === boundingBox.x
+                        || y === boundingBox.y)
+                        infinite.add(points[0].point.id);
+                }
+
                 else rows[y][x] = null;
             }
         }
@@ -64,13 +73,13 @@ class Solution {
             .chain()
             .map(_ => _.x)
             .max()
-            .value() + 1;
+            .value();
 
         const y = _(coords)
             .chain()
             .map(_ => _.y)
             .max()
-            .value() + 1;
+            .value();
 
         return { x, y };
     }
