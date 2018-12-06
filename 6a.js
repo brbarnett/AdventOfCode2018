@@ -24,11 +24,6 @@ class Solution {
 
         const boundingBox = this.getBoundingBox(coords);
 
-        let rows = new Array(boundingBox.y + 1);
-        for (let i = 0; i < boundingBox.y; i++) {
-            rows[i] = _.fill(Array(boundingBox.x + 1), null);
-        }
-
         let infinite = new Set();
         let counts = _.fill(new Array(coords.length), 0);
         for (let x = 0; x < boundingBox.x + 1; x++) {
@@ -47,7 +42,6 @@ class Solution {
                 const points = _.filter(distances, _ => _.distance === minDistance);
 
                 if (points.length === 1) {
-                    rows[y][x] = points[0].point.id;
                     counts[points[0].point.id] += 1;
 
                     if (x === 0
@@ -56,8 +50,6 @@ class Solution {
                         || y === boundingBox.y)
                         infinite.add(points[0].point.id);
                 }
-
-                else rows[y][x] = null;
             }
         }
 
