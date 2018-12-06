@@ -3,13 +3,7 @@ const fs = require('fs'),
 
 class Solution {
     run() {
-        // const input = fs.readFileSync('./6.dat', 'utf8');
-        const input = `1, 1
-        1, 6
-        8, 3
-        3, 4
-        5, 5
-        8, 9`;
+        const input = fs.readFileSync('./6.dat', 'utf8');
 
         const result = this.solve(input);
         console.log('Result:', result);
@@ -36,6 +30,7 @@ class Solution {
         }
 
         let infinite = new Set();
+        let counts = _.fill(new Array(coords.length), 0);
         for (let x = 0; x < boundingBox.x + 1; x++) {
             for (let y = 0; y < boundingBox.y; y++) {
                 const distances = _(coords)
@@ -53,6 +48,7 @@ class Solution {
 
                 if (points.length === 1) {
                     rows[y][x] = points[0].point.id;
+                    counts[points[0].point.id] += 1;
 
                     if (x === 0
                         || y === 0
@@ -65,7 +61,11 @@ class Solution {
             }
         }
 
-        return null;
+        return _(counts)
+            .chain()
+            .filter((_, key) => !infinite.has(key))
+            .max(_ => _.distance)
+            .value();
     }
 
     getBoundingBox(coords) {
