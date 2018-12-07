@@ -18,7 +18,7 @@ class Solution {
             .map(_ => this.parse(_))
             .value();
 
-        this.steps = [];
+        this.steps = new Set();
 
         const result = this.solve();
         console.log('Result:', result);
@@ -29,12 +29,7 @@ class Solution {
 
         this.findNextSteps(start[0], 0);
 
-        const steps = this.steps.map(_ => _.step);
-        const last = steps.reverse()[0];
-        _.remove(steps, _ => _ === last);
-        steps.reverse().push(last);
-
-        return _.uniq(steps).join('');
+        return [...this.steps].join('');
     }
 
     parse(instruction) {
@@ -45,15 +40,19 @@ class Solution {
         };
     }
 
-    findNextSteps(step, level) {
-        this.steps.push({
-            step: step,
-            level: level
-        });
+    findNextSteps(step) {
+        const hasAllDependencies = _(this.dependencies)
+            .chain()
+            .filter(_ => _.step === step)
+            .every(_ => this.steps.has(_.dependency))
+            .value();
+
+        if (hasAllDependencies)
+            this.steps.add(step);
 
         const nextSteps = this.dependencies.filter(_ => _.dependency === step).map(_ => _.step).sort();
 
-        nextSteps.forEach(_ => this.findNextSteps(_, level + 1));
+        nextSteps.forEach(_ => this.findNextSteps(_));
     }
 }
 
