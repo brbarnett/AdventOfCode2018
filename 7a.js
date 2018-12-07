@@ -22,12 +22,15 @@ class Solution {
 
         const result = this.solve();
         console.log('Result:', result);
+
+        // not BGKDZWMJCNEUYQSTRHLPAFIVXO
+        // not BQRGKDZWHMJCNEUSTYLPAFIVXO
     }
 
     solve() {
         const start = _.difference(_.uniq(this.dependencies.map(_ => _.dependency)), _.uniq(this.dependencies.map(_ => _.step))).sort();
 
-        this.findNextSteps(start[0], 0);
+        start.forEach(_ => this.findNextSteps(_));
 
         return [...this.steps].join('');
     }
