@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const solution = new (require('./9a'))();
+const solution = new (require('./10a'))();
 
 // custom lodash functions
 (function() {
