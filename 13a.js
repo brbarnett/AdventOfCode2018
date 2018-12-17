@@ -31,9 +31,8 @@ class Solution {
             .map(x => x.split(''))
             .value();
 
-        let crashed = false;
         let moves = 0;
-        while (!crashed) {
+        while (true) {
             moves++;
             carts = _.sortBy(carts, ['y', 'x']);
 
@@ -46,7 +45,7 @@ class Solution {
                 if (cart.direction === 'v') cart.y++;
                 if (cart.direction === '<') cart.x--;
 
-                if (_.some(carts, x => x.x === cart.x && x.y === cart.y && x.direction !== cart.direction))
+                if (_.filter(carts, x => x.x === cart.x && x.y === cart.y).length > 1)
                     return cart;
 
                 // change direction
