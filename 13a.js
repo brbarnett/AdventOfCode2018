@@ -119,7 +119,7 @@ class Solution {
                     nextTurn: 'L'
                 });
 
-                index = line.indexOf(direction + 1);
+                index = line.indexOf(direction, index + 1);
             }
         }
 
