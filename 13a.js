@@ -51,6 +51,8 @@ class Solution {
                 // change direction
                 let segment = grid[cart.y][cart.x];
 
+                if(segment === ' ') throw 'You\'re off the track!';
+
                 // if | or -, do nothing
 
                 if (segment === '\\' && cart.direction === '^') {
